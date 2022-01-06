@@ -1,7 +1,8 @@
 #!/usr/bin/sh
 # ███╗   ██╗███████╗██╗  ██╗███╗   ██╗
 # ████╗  ██║██╔════╝╚██╗██╔╝████╗  ██║
-# ██╔██╗ ██║█████╗   ╚███╔╝ ██╔██╗ ██║ ██║╚██╗██║██╔══╝   ██╔██╗ ██║╚██╗██║
+# ██╔██╗ ██║█████╗   ╚███╔╝ ██╔██╗ ██║
+# ██║╚██╗██║██╔══╝   ██╔██╗ ██║╚██╗██║
 # ██║ ╚████║███████╗██╔╝ ██╗██║ ╚████║
 # ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝
 #
@@ -142,9 +143,6 @@ if [[ $USER == "root" ]]; then
     exit 1
 fi
 
-warn "Updating local Pakages database..."
-# sudo pacman -Sy && print "DONE!" || err "UPDATE FAILED" && exit 1
-
 if ! [ -x "$(command -v yay)" ]; then
     printf "$YELLOW>>>$RES You do not have yay installed. want to install it? [Y]es [N]o: "
     read -n 1 ans
@@ -166,6 +164,9 @@ if ! [ -x "$(command -v yay)" ]; then
     esac
     done
 fi
+
+warn "Updating local Pakages database..."
+sudo yay -Sy && print "DONE!" || err "UPDATE FAILED" && exit 1
 
 value=(
     "Cli"       "Command line utils"     "off" 
