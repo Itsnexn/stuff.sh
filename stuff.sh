@@ -1,245 +1,182 @@
 #!/usr/bin/sh
-#  __     ______   ______     __   __     ______     __  __     __   __
-# /\ \   /\__  _\ /\  ___\   /\ \-.\ \   /\  ___\   /\_\_\_\   /\ "-.\ \
-# \ \ \  \/_/\ \/ \ \___  \  \ \ \-.  \  \ \  __\   \/_/\_\/_  \ \ \-.  \
-#  \ \_\    \ \_\  \/\_____\  \ \_\\"\_\  \ \_____\   /\_\/\_\  \ \_\\"\_\
-#   \/_/     \/_/   \/_____/   \/_/ \/_/   \/_____/   \/_/\/_/   \/_/ \/_/
+# ███╗   ██╗███████╗██╗  ██╗███╗   ██╗
+# ████╗  ██║██╔════╝╚██╗██╔╝████╗  ██║
+# ██╔██╗ ██║█████╗   ╚███╔╝ ██╔██╗ ██║
+# ██║╚██╗██║██╔══╝   ██╔██╗ ██║╚██╗██║
+# ██║ ╚████║███████╗██╔╝ ██╗██║ ╚████║
+# ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝
 #
 # Twitter : https://twitter.com/itsnexn
-# Github : https://github.com/Itsnexn
-# License : MIT
+# Github  : https://github.com/Itsnexn
+# Website : Itsnexn.me
+#
+# MIT License
 
 # Vars
 RED="\033[1;31m"
 YELLOW="\033[1;33m"
 GREEN="\033[1;32m"
-NOCOLOR="\033[0m"
+RES="\033[0m"
 
-# CFG
-cfg(){
-while true; do
-    printf "\n${YELLOW}Install config? ([y]es / [n]o / [r]emove)${NOCOLOR}";
-    read -n 1 ans;
-    case $ans in
-        y|Y)
-            printf "${YELLOW}\nCloning the git repo :)\n${NOCOLOR}";
-            git clone https://github.com/Itsnexn/Dotfiles.git /tmp/ItsnexnDots
-            [[ -d "$HOME/.config" ]] && \
-            printf "${RED}\nBackup the old config directory!${NOCOLOR}" && \
-                cp "$HOME/.config" $HOME/.config_bak;
-            printf "${RED}\nIF YOU WANT YOU TO RESTORE YOUR CONFIG, DONT REMOVE $(printenv HOME)/.config_bak DIRECTORY!\n${NOCOLOR}";
-            
-            # mv new config to $HOME
-            printf "${YELLOW}\nMoving Files\n${NOCOLOR}";
-            cd /tmp/ItsnexnDots;
-            printf "${GREEN}\nDone!\n\n${NOCOLOR}";
-            break;;
-        n|N)
-            break;;
-        r|R)
-            rm -rf "$HOME/.config" && mv "$HOME/.config_bak" "$HOME/.config";;
-        *)
-            printf "${RED}\nI do not understand!\n${NOCOLOR}";;
-    esac
-done
+export NEWT_COLORS="
+    window=,black
+    entry=white,gray
+    border=red,black
+    textbox=white,black
+    button=green,gray
+    shadow=,gray
+    root=,blue
+    checkbox=white,black
+"
+
+Pakages=(
+    "python3"               # Python scripting language
+    "python2"               # Older version of python (required by some scripts)
+    "nodejs"                # Run time javascript
+    "apache"                # Apache the webserver
+    "jq"                    # CLI json parser
+    "php"
+    "mysql"
+)
+
+Cli=(
+    "starship"              # Interactive prompt written in rust
+    "nvim"                  # The editor
+    "exa"                   # LS replacement
+    "tmux"                  # Terminal split stuff
+    "zsh"                   # The Z shell
+    "ranger"                # TUI file manager
+    "ueberzug"              # Image preview in terminal
+    "pulsemixer"            # TUI mixer
+    "blueman-tray"          # Bluetooth system tray icon
+    "bluez"                 # Bluetooth
+    "bluez-utils"           # bluetoothctl
+)
+Gui=(
+    "picom-jonaburg-git"    # A lightweight compositor for X11
+    "alsa-utils"            # Advanced Linux Sound Architecture
+    "xkb-switch-git"        # Changing kbd layouts
+    "nitrogen"              # Wallpaper changer
+    "nautilus"              # File manager
+    "lxappearance"          # style configuration tool
+    "rofi"                  # Application menu
+    "rofi-emoji"            # emoji script for rofi
+)
+
+Pwntools=(
+    # General
+    "exploit-db"            # Offensive security exploit database
+    "openvpn"               # open VPN client
+    "android-sdk"           # Android stuff like: adb, fastboot and ...
+    "set"                   # Social engineering toolkit
+    "tor"                   # The onion router
+    "tor-browser-en"        # onion router browser
+    "spooftooph"            # Bluetooth spoofing or cloning
+    "seclists"              # List of security wordlists
+
+    # Wireless
+    "aircrack-ng"           # Wireless attack tools
+    "wifite2"               # WEP and WPA attack tool
+
+    # Network
+    "enum4linux"            # enumerating windows and samba systems
+    "enum4linux-ng"         # Next generation of enum4linux
+    "nmap"                  # Network map
+    "ettercap"              # sniffer/interceptor/logger
+    "rustscan"              # Faster portscanner then nmap
+
+    # Web
+    "sqlmap"                # SQL injection automation tool
+    "dirb"                  # Directory bruteforce
+    "ffuf"                  # Web fuzzer in go
+    "wfuzz"                 # Web fuzzer
+    "hydra"                 # Logon cracker/bruteforcer
+    "nikto"                 # Web server scanner
+    "pwncat-caleb"          # Post exploitation platform
+    "pwntools"              # Python Pwn library
+    "sublist3r"             # Sub domain enumration tool
+    "webshells"             # Web backdors
+    "wireshark-cli"         # Network traffic and protocol analyzer/sniffer CLI
+    "wireshark-qt"          # Network traffic and protocol analyzer/sniffer GUI
+    "wpscan"                # Blackbox wordpress scanner
+    "xss-freak"             # XSS automation tool in python
+    "zaproxy"               # OWASP Zap proxy
+    "burpsuite"
+
+    # Stego
+    "zsteg"                 # stego tool
+    "steghide"              # Embed message in file
+    "stegseek"              # Stego tool
+    "stegsolve"             # Stego bruteforcer
+    "stegcracker"           # Stego bruteforcer
+
+    # Cracking
+    "john"                  # John the ripper
+    "johnny"                # Gui for john
+    "hash-buster"           # online hash cracker scraper
+    "hash-identifier"       # identify type of hash
+    "hashcat"               # World's fastest password cracker
+    "hate-crack"            # automating cracking methodologies using Hashcat
+
+    # Binary
+    "binwalk"               # search given file for embedded files
+    "strace"                # Trace system calls and signals
+    "ltrace"                # Tracks runtime library calls in dynamically linked programs
+    "gdb"                   # GNU debugger
+    "radare2"               # disasm, debug, analyze and manipulate binary files
+)
+
+function print(){
+    printf "$GREEN>>>$RES $@\n"
 }
 
-
-yay(){
-while true; do
-    printf "${YELLOW}\nInstall Yay and BlackArch repo? (y/n)${NOCOLOR}";
-    read -n 1 ans;
-    case $ans in
-        y|Y)
-            printf "${YELLOW}\nStarting to Download\n${NOCOLOR}";
-            if ! command -v git &> /dev/null
-            then
-                printf "${RED}\nYou dont have git install utilities or install git manully"
-                break
-            else 
-                cd /opt
-                sudo git clone https://aur.archlinux.org/yay.git && \
-                    chown $USER:$USER /opt/yay && \
-                    makepkg -si && \
-                cd /tmp
-                wget https://blackarch.org/strap.sh
-                echo 46f035c31d758c077cce8f16cf9381e8def937bb strap.sh | sha1sum -c && \
-                    chmod +x strap.sh && \
-                    sudo ./strap.sh && \
-                    sudo pacman -Syu
-                    printf "${GREEN}\nDone!\n\n${NOCOLOR}";
-            fi
-            break;;
-        n|N)
-            break;;
-        *)
-            printf "${RED}\nI do not understand!\n${NOCOLOR}";;
-    esac
-done
+function err(){
+    printf "$RED>>>$RES $@\n"
 }
 
-
-# base-devel
-devel(){
-while true; do
-    printf "${YELLOW}\nInstall Basic dev tools (y/n)${NOCOLOR}";
-    read -n 1 ans;
-    case $ans in
-        y|Y)
-            printf "${YELLOW}\nStarting to Download\n${NOCOLOR}";
-            sudo pacman -S autoconf binutils bison fakeroot file findutils flex gawk gcc \
-                gettext grep groff gzip libtool m4 make patch pkgconf sed texinfo which
-            printf "${GREEN}\nDone!\n\n${NOCOLOR}";
-            break;;
-        n|N)
-            break;;
-        *)
-            printf "${RED}\nI do not understand!\n${NOCOLOR}";;
-    esac
-done
+function warn(){
+    printf "$YELLOW>>>$RES $@\n"
 }
 
+if [[ $USER == "root" ]]; then
+    err "Please run script with normal user!"
+    exit 1
+fi
 
-# utils
-shell(){
-while true; do
-    printf "${YELLOW}\nInstall terminal utilities? (y/n)${NOCOLOR}";
-    read -n 1 ans;
-    case $ans in
-        y|Y)
-            printf "${YELLOW}\nStarting to Download\n${NOCOLOR}";
-            sudo pacman -S git nvim exa tmux pulsemixer xkb-switch-git xkblayout-state-git \
-                ranger curl wget openvpn htop bashtop cmatrix starship python3 python2 \
-                nodejs apache
-            printf "${GREEN}\nDone!\n\n${NOCOLOR}";
-            break;;
-        n|N)
-            break;;
-        *)
-            printf "${RED}\nI do not understand!\n${NOCOLOR}";;
-    esac
-done
-}
-
-
-wm(){
-while true; do
-    printf "${YELLOW}\nInstall WindowManager tools (y/n)${NOCOLOR}";
-    read -n 1 ans;
-    case $ans in
-        y|Y)
-            printf "${YELLOW}\nStarting to install pakages...\n${NOCOLOR}";
-            sudo pacman -S picom-jonaburg-git blueman-tray bluez bluez-utils nitrogen \
-               dunst network-manager-applet Nautilus lxappearance rofi rofi-emoji ueberzug
-            printf "${GREEN}\nDone!\n\n${NOCOLOR}";
-            break;;
-        n|N)
-            break;;
-        *)
-            printf "${RED}\nI do not understand!\n${NOCOLOR}";;
-    esac
-done
-}
-
-
-h4x() {
-while true; do
-    printf "${YELLOW}\nInstall H4x tools (y/n)${NOCOLOR}";
-    read -n 1 ans;
-    case $ans in
-        y|Y)
-            printf "${YELLOW}\nStarting to install pakages...\n${NOCOLOR}";
-            yay -S aircrack-ng android-sdk androidpincrack android-apktool \
-                armitage arp-scan autopwn autosint autosploit backcookie backdoor-apk \
-                binwalk blindsql bluescan brute-force btcrack cheat-sh cook crabstick \
-                enum4linux ctf-party dalfox dirbuster dirb dnsenum dorknet enum4linux-ng \
-                evilpdf exploit-db ffuf ffuf-scripts firefox-security-toolkit ftp-fuzz \
-                ftp-scanner gdbgui git-dump hackrf hash-buster hash-identifier hashcat \
-                hashcat-utils hashfind hate-crack hopper http-fuzz hulk hydra john \
-                johnny jwt-tool l0l lfi-autopwn lfi-exploiter lfi-scanner \
-                linux-exploit-suggester.sh list-urls lulzbuster malware-check-tool \
-                netmap nikto opendoor packit pwcrack pwncat-caleb pwned pwntools \
-                raccoon radare2 rarcrack rdp-sec-check rtfm rustscan search1337 \
-                seclists set shellcode-compiler shellcode-factory subfinder sublist3r \
-                tell-me-your-secrets tor tor-browser-en webshells wfuzz wifi-autopwner \
-                wifibroot wifiphisher wifite wifite2 wifijammer wireshark-cli wireshark-qt \
-                wordlistctl wpforce wordpresscan wpscan xorbruteforcer xss-freak \
-                zaproxy zsteg steghide stegseek stegsolve sqlmap strace ltrace \
-                gdb proxychains-ng stegcracker spooftooph jq fern-wifi-cracker \
-                ettercap bsd-games burpsuite
-            printf "${GREEN}\nDone!\n\n${NOCOLOR}";
-            break;;
-        n|N)
-            break;;
-        *)
-            printf "${RED}\nI do not understand!\n${NOCOLOR}";;
-    esac
-done
-}
-
-
-mainMenu() {
-printf "${YELLOW}\n
-1) Install config
-2) Install Yay aur helper and blackarch repo
-3) Install terminal tools
-4) Install window manager utilities
-5) install h4x tools
-q) EXIT
-
-=> ${NOCOLOR}"
-}
-
-
-banner() {
-# Banner
-printf "${RED}
-  __     ______   ______     __   __     ______     __  __     __   __
- /\ \   /\__  _\ /\  ___\   /\ \-.\ \   /\  ___\   /\_\_\_\   /\ \"-.\ \\
- \ \ \  \/_/\ \/ \ \___  \  \ \ \-.  \  \ \  __\   \/_/\_\/_  \ \ \-.  \\
-  \ \_\    \ \_\  \/\_____\  \ \_ \\\\\"\_\  \ \_____\   /\_\/\_\  \ \_\\\\\" \_\\
-   \/_/     \/_/   \/_____/   \/_/ \/_/   \/_____/   \/_/\/_/   \/_/ \/_/
-${NOCOLOR}\n"
-}
-
-
-banner;
-
-printf "${RED}Please excute this script with normal user!${NOCOLOR}"
-sleep 2
-
-while true; do
+if ! [ -x "$(command -v yay)" ]; then
+    printf "$YELLOW>>>$RES You do not have yay installed. want to install it? [Y]es [N]o: "
+    read -n 1 ans
+    printf "\n"
     while true; do
-        mainMenu;
-        read ans;
-        case $ans in
-            1)
-                cfg;
-                break;;
-            2)
-                yay;
-                break;;
-            3)
-                shell;
-                break;;
-            4)
-                wm;
-                break;;
-            5)
-                h4x;
-                break;;
-            6)
-                echo "TEST";
-                break;;
-            clear)
-                clear;
-                break;;
-            q)
-                printf "${RED}\n\tG00d By3 <3\n${NOCOLOR}"
-                exit;; 
-            *)
-                printf "${RED}\nI do not understand!\n${NOCOLOR}";;
-        esac
+    case $ans in
+        y|Y)
+            warn "Cloning the yay repo in /tmp/yay"
+            git clone --quiet https://aur.archlinux.org/yay-git.git /tmp/yay || \
+                err "Error while cloning the repo!" && exit 1
+            cd /tmp/yay
+            makepkg -si
+            break;;
+        n|N)
+            err "Aborting"
+            break;;
+        *)
+            err "Invalid option"
+    esac
     done
-done
+fi
 
+warn "Updating local Pakages database..."
+sudo yay -Sy && print "DONE!" || err "UPDATE FAILED" && exit 1
+
+value=(
+    "Cli"       "Command line utils"     "off" 
+    "Gui"       "Gui utils"              "off" 
+    "Pakages"   "General tools"          "off"
+    "Pwntools"  "CTF and security tools" "off"
+)
+
+Install=("$(whiptail --checklist "Choose item you want to install" 20 50 10 "${value[@]}" 3>&1 1>&2 2>&3 3>&- | xargs)")
+
+for i in $Install; do
+    eval "yay -S \${$i[@]}"
+done
