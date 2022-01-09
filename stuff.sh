@@ -144,39 +144,61 @@ if [[ $USER == "root" ]]; then
 fi
 
 if ! [ -x "$(command -v yay)" ]; then
-    printf "$YELLOW>>>$RES You do not have yay installed. want to install it? [Y]es [N]o: "
-    read -n 1 ans
-    printf "\n"
     while true; do
-    case $ans in
-        y|Y)
-            warn "Cloning the yay repo in /tmp/yay"
-            git clone --quiet https://aur.archlinux.org/yay-git.git /tmp/yay || \
-                err "Error while cloning the repo!" && exit 1
-            cd /tmp/yay
-            makepkg -si
-            break;;
-        n|N)
-            err "Aborting"
-            break;;
-        *)
-            err "Invalid option"
-    esac
+        printf "$YELLOW>>>$RES You do not have yay installed. want to install it? [Y]es [N]o: "
+        read -n 1 ans
+        printf "\n"
+        case $ans in
+            y|Y)
+                warn "Cloning the yay repo in /tmp/yay"
+                git clone --quiet https://aur.archlinux.org/yay-git.git /tmp/yay || \
+                    err "Error while cloning the repo!" && exit 1
+                cd /tmp/yay
+                makepkg -si
+                break;;
+            n|N)
+                break;;
+            *)
+                err "Invalid option"
+        esac
     done
 fi
 
-warn "Updating local Pakages database..."
-sudo yay -Sy && print "DONE!" || err "UPDATE FAILED" && exit 1
+if ! [[ -e /etc/pacman.d/blackarch-mirrorlist ]]; then
+    while true; do
+        printf "$YELLOW>>>$RES You do not have yay installed. want to install it? [Y]es [N]o: "
+        read -n 1 ans
+        printf "\n"
+        case $ans in
+            y|Y)
+                warn "Cloning the yay repo in /tmp/yay"
+                sudo sh -c "$(curl https://blackarch.org/strap.sh)"
+                break;;
+            n|N)
+                break;;
+            *)
+                err "Invalid option"
+        esac
+    done
+fi
 
 value=(
-    "Cli"       "Command line utils"     "off" 
-    "Gui"       "Gui utils"              "off" 
+    "Cli"       "Command line utils"     "off"
+    "Gui"       "Gui utils"              "off"
     "Pakages"   "General tools"          "off"
     "Pwntools"  "CTF and security tools" "off"
 )
 
 Install=("$(whiptail --checklist "Choose item you want to install" 20 50 10 "${value[@]}" 3>&1 1>&2 2>&3 3>&- | xargs)")
 
-for i in $Install; do
-    eval "yay -S \${$i[@]}"
-done
+if ! [[ $Install ]]; then
+    exit 1
+else
+    pkgs=""
+
+    for i in $Install; do
+        pkgs+="$(eval "echo \${$i[@]}") "
+    done
+
+    yay -Sy "$(echo $pkgs)"
+fi
